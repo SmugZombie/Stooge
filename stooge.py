@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py
 # Ron Egli
-# Versopm 0.2
+# Versopm 0.3
 # github.com/smugzombie
 
 # Python Imports
@@ -55,10 +55,18 @@ def getHosts():
 
 # Run Remote Command
 def runCommand(user, host, command):
+        output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)
+        json = {}
+        json['errcode'] = output[0]
+        json['response'] = output[1]
         if verbose is True:
-                output = str(commands.getstatusoutput('ssh '+user+'@'+host+" "+command))
+                if json['errcode'] == 0:
+                        output = bcolors.OKGREEN + "Success!" + bcolors.ENDC + "\n    " + bcolors.OKBLUE + str(json['response']) + bcolors.ENDC
+                else:
+                        output = bcolors.FAIL + "Error! " + str(json['errcode']) + bcolors.ENDC + " \n    " + bcolors.OKBLUE  + str(json['response']) + bcolors.ENDC
         else:
-                output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)[1]
+                output = bcolors.OKBLUE + json['response'] + bcolors.ENDC
+
         return output
 
 # If list argument is provided, List and exit.
@@ -78,7 +86,7 @@ elif command != "":
                         user = data["hosts"][x]["user"]
                     host = data["hosts"][x]["id"]
                     print bcolors.FAIL + host + bcolors.ENDC
-                    print bcolors.OKBLUE + "    " + runCommand(user, host, command) + bcolors.ENDC
+                    print "    ", runCommand(user, host, command)
         else:
                 for x in range(hostcount):
                     foundhost = data["hosts"][x]["id"]
@@ -95,7 +103,7 @@ elif command != "":
         #           exit()
         #       else:
                         print bcolors.FAIL + host + bcolors.ENDC
-                        print bcolors.OKBLUE + "    " + runCommand('root', host, command) + bcolors.ENDC
+                        print "    ", runCommand('root', host, command)
         exit() # End Script
 
 # If nothing is provided, provide user with usage.
