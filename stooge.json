@@ -1,0 +1,11 @@
+{
+	"hosts": [{
+		"id": "The hostname / ip of the server as defined by dns/hosts file",
+		"user": "The NON root username (if applicable)",
+		"sudouser": "The root username (if applicable)"
+	},{
+		"id": "testserver1",
+		"user": "notroot",
+		"sudouser": "root"
+	}]
+}
