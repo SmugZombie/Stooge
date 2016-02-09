@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py
 # Ron Egli
-# Versopm 0.3
+# Version 0.3
 # github.com/smugzombie
 
 # Python Imports
