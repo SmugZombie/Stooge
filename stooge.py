@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py
 # Ron Egli
-# Version 0.1
+# Versopm 0.2
 # github.com/smugzombie
 
 # Python Imports
@@ -13,15 +13,17 @@ import commands
 
 # Arguments
 arguments = argparse.ArgumentParser()
-arguments.add_argument('--list','-l', help="", required=False, action='store_true')
-arguments.add_argument('--host','-H', help="", required=False, default="")
-arguments.add_argument('--command','-c', help="", required=False, default="")
-arguments.add_argument('--sudo','-s', help="", required=False, action='store_true')
+arguments.add_argument('--list','-l', help="List current devices in the config", required=False, action='store_true')
+arguments.add_argument('--host','-H', help="Select a specific host from the config", required=False, default="")
+arguments.add_argument('--command','-c', help="The command you want to push to selected hosts", required=False, default="")
+arguments.add_argument('--sudo','-s', help="If the command is to be run via SUDO", required=False, action='store_true')
+arguments.add_argument('--verbose','-v', help="Enables verbose output from host", required=False, action='store_true')
 args = arguments.parse_args()
 listarg = args.list
 host = args.host
 command = args.command
 sudo = args.sudo
+verbose = args.verbose
 
 # Styles
 class bcolors:
@@ -53,8 +55,11 @@ def getHosts():
 
 # Run Remote Command
 def runCommand(user, host, command):
-    output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)[1]
-    return output
+        if verbose is True:
+                output = str(commands.getstatusoutput('ssh '+user+'@'+host+" "+command))
+        else:
+                output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)[1]
+        return output
 
 # If list argument is provided, List and exit.
 if listarg is True:
@@ -63,7 +68,8 @@ if listarg is True:
 
 # If a command is provided, validate host and continue
 elif command != "":
-        print command
+        if verbose is True:
+                print "Command: ",command
         if host == "" or host == "all":
                 for x in xrange(hostcount):
                     if sudo is True:
