@@ -3,7 +3,7 @@ Handspun Salt / Puppet like tool
 
 <strong>Stooge</strong> - "One who plays a subordinate or compliant role to a principal"
 
-<strong>Usage</strong>
+<strong>Usage:</strong>
 
 <pre>stooge -H [HOSTNAME/IP]... -c [COMMAND]... -s
 Run commands easily via ssh on remote devices
