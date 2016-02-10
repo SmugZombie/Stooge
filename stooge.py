@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.5.2
+# Version 0.5.3
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -43,17 +43,25 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        print "testing"
+        blankconfig = "{\"config\":[{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"}],\"hosts\":[{}]}"
+        try:
+                file = open(config, "w")
+                file.write(blankconfig)
+        except:
+                print "Error! Unable to write to file (", config, ")."
+        else:
+                print "Config created successfully. Please add hosts to ", config
         exit()
         return
 
 # Get Hosts Function
-def getHosts():
+def listHosts():
         print "Current Stooge Hosts"
         print ""
-        for x in xrange(hostcount):
-                print " ", x, data["hosts"][x]["id"]
-        print ""
+        if hostcount >= 1:
+                for x in xrange(hostcount):
+                        print " ", x, data["hosts"][x]["id"]
+                print ""
         print "Total Stooge Hosts: ", hostcount
         return
 
@@ -94,31 +102,44 @@ def getUsage():
         print "  -a, --add             adds a new host to the stooge configuration "
         return
 
-# Load hosts
-if os.path.isfile(config) is True:
-        with open(config) as data_file:
-                try:
-                        data = json.load(data_file)
-                except:
-                        print "Error: Config file found, but corrupt or blank."
-                        exit()
-else:
-        print "Error: Config file not found. (", config,")"
-        print "Would you like us to create a new one? (Y/N)",
+def promptCreateNew():
+        print "Would you like us to create a new one? (Y/N)"
         answer = raw_input()
         if answer == "Y" or answer == "y" or answer == "yes" or answer == "YES":
                 createBlankConfig()
+                exit()
         elif answer == "N" or answer == "n" or answer == "no" or answer == "NO":
                 print "Please locate or create a valid config file and try again."
                 exit()
         else:
-                exit()
-# Count Hosts
-hostcount = len(data["hosts"])
+                print "Invalid entry. Try again. (Y/N)"
+                promptCreateNew()
+
+def loadHosts():
+# Load hosts
+        global data
+        global hostcount
+        if os.path.isfile(config) is True:
+                with open(config) as data_file:
+                        try:
+                                data = json.load(data_file)
+                                # Count Hosts
+                                hostcount = len(data["hosts"])
+                                return hostcount
+                        except:
+                                print "Error: Config file found, but corrupt or blank."
+                                exit()
+        else:
+                print "Error: Config file not found. (", config,")"
+                promptCreateNew()
+
+
+# Initialize Hosts
+hostcount = loadHosts()
 
 # If list argument is provided, List and exit.
 if listarg is True:
-        getHosts()
+        listHosts()
         exit() # End script
 
 # If a command is provided, validate host and continue
