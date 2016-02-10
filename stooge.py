@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.5.3
+# Version 0.5.4
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -11,6 +11,7 @@ import pprint
 import argparse
 import commands
 import os
+import textwrap
 
 # Defaults
 config = str(os.path.dirname(os.path.realpath(__file__)))+"/stooge.json"
@@ -73,9 +74,9 @@ def runCommand(user, host, command):
         json['response'] = output[1]
         if verbose is True:
                 if json['errcode'] == 0:
-                        output = bcolors.OKGREEN + "Success!" + bcolors.ENDC + "\n    " + bcolors.OKBLUE + str(json['response']) + bcolors.ENDC
+                        output = bcolors.OKGREEN + "Success!" + bcolors.ENDC + "\n" + bcolors.OKBLUE + str(json['response']) + bcolors.ENDC
                 else:
-                        output = bcolors.FAIL + "Error! " + str(json['errcode']) + bcolors.ENDC + " \n    " + bcolors.OKBLUE  + str(json['response']) + bcolors.ENDC
+                        output = bcolors.FAIL + "Error! " + str(json['errcode']) + bcolors.ENDC + " \n" + bcolors.OKBLUE  + str(json['response']) + bcolors.ENDC
         else:
                 output = bcolors.OKBLUE + json['response'] + bcolors.ENDC
 
@@ -133,6 +134,11 @@ def loadHosts():
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
 
+def formatOutput(input):
+        prefix = "    "
+        preferredWidth = 70
+        wrapper = textwrap.TextWrapper(initial_indent=' '*len(prefix),width=preferredWidth,subsequent_indent=' '*len(prefix))
+        return wrapper.fill(input)
 
 # Initialize Hosts
 hostcount = loadHosts()
@@ -154,7 +160,7 @@ elif command != "":
                         user = data["hosts"][x]["user"]
                     host = data["hosts"][x]["id"]
                     print bcolors.FAIL + host + bcolors.ENDC
-                    print "    ", runCommand(user, host, command)
+                    print formatOutput(runCommand(user, host, command))
         else:
                 for x in range(hostcount):
                     foundhost = data["hosts"][x]["id"]
@@ -171,7 +177,7 @@ elif command != "":
         #           exit()
         #       else:
                         print bcolors.FAIL + host + bcolors.ENDC
-                        print "    ", runCommand('root', host, command)
+                        print formatOutput(runCommand('root', host, command))
         exit() # End Script
 
 # If nothing is provided, provide user with usage.
