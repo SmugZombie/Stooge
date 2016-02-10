@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# stooge.py
+# stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.3
-# github.com/smugzombie
+# Version 0.4
+# github.com/smugzombie - stooge.us
 
 # Python Imports
 import json
@@ -27,31 +27,31 @@ verbose = args.verbose
 
 # Styles
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+        HEADER = '\033[95m'
+        OKBLUE = '\033[94m'
+        OKGREEN = '\033[92m'
+        WARNING = '\033[93m'
+        FAIL = '\033[91m'
+        ENDC = '\033[0m'
+        BOLD = '\033[1m'
+        UNDERLINE = '\033[4m'
 
 # Load hosts
 with open('stooge.json') as data_file:
-    data = json.load(data_file)
+        data = json.load(data_file)
 
 # Count Hosts
 hostcount = len(data["hosts"])
 
 # Get Hosts Function
 def getHosts():
-    print "------------------------------------"
-    print "|  Listing Stooge Hosts            |"
-    print "------------------------------------"
-    print "Total Hosts: " + str(hostcount)
-    for x in xrange(hostcount):
-        print data["hosts"][x]["id"]
-    return
+        print "Current Stooge Hosts"
+        print ""
+        for x in xrange(hostcount):
+                print " ", x, data["hosts"][x]["id"]
+        print ""
+        print "Total Stooge Hosts: ", hostcount
+        return
 
 # Run Remote Command
 def runCommand(user, host, command):
@@ -68,6 +68,27 @@ def runCommand(user, host, command):
                 output = bcolors.OKBLUE + json['response'] + bcolors.ENDC
 
         return output
+
+def getUsage():
+        print "Usage: stooge -H [HOSTNAME/IP]... -c [COMMAND]... -s"
+        print "Run commands easily via ssh on remote devices"
+        print ""
+        print "  -H, --host            the targeted host for the remote command"
+        print "  -c, --command         the command to be run on the remote host(s)"
+        print "  -s. --sudo            if enabled, will use sudouser in place of standard"
+        print "  -v, --verbose         enabled verbose output of commands that are run"
+        print ""
+        print "Examples:"
+        print "  stooge -h server1 -c \"shutdown -r now\" -s "
+        print "      - Tells the host server1 to shutdown/reboot now using a sudo user"
+        print "  stooge -c \"who\""
+        print "      - Tells all available hosts to return 'who' is logged in, using a"
+        print "         standard user"
+        print ""
+        print "Coming Soon:"
+        print "  -g, --group           targets a specific group of predefined hosts"
+        print "  -a, --add             adds a new host to the stooge configuration "
+        return
 
 # If list argument is provided, List and exit.
 if listarg is True:
@@ -108,4 +129,5 @@ elif command != "":
 
 # If nothing is provided, provide user with usage.
 else:
-        print "Hello World"
+        getUsage()
+        exit()
