@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.5
+# Version 0.5.1
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -41,8 +41,16 @@ class bcolors:
         UNDERLINE = '\033[4m'
 
 # Load hosts
-with open(config) as data_file:
-        data = json.load(data_file)
+if os.path.isfile(config) is True:
+        with open(config) as data_file:
+                try:
+                        data = json.load(data_file)
+                except:
+                        print "Error: Config file found, but corrupt or blank."
+                        exit()
+else:
+        print "Error: Config file not found. (", config,")"
+        exit()
 
 # Count Hosts
 hostcount = len(data["hosts"])
