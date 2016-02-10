@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.4
+# Version 0.5
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -10,6 +10,10 @@ import subprocess
 import pprint
 import argparse
 import commands
+import os
+
+# Defaults
+config = str(os.path.dirname(os.path.realpath(__file__)))+"/stooge.json"
 
 # Arguments
 arguments = argparse.ArgumentParser()
@@ -37,7 +41,7 @@ class bcolors:
         UNDERLINE = '\033[4m'
 
 # Load hosts
-with open('stooge.json') as data_file:
+with open(config) as data_file:
         data = json.load(data_file)
 
 # Count Hosts
