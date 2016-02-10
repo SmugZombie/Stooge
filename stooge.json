@@ -14,9 +14,9 @@
 	}],
         "config": [{
                 "masteridentityfile" : "",
-                "lockconfig" : False,
+                "lockconfig" : "false",
                 "configversion" : "0.3",
-                "checkforupdates" : True
+                "checkforupdates" : "true"
         }]
 
 }
