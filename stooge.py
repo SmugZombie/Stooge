@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.5.1
+# Version 0.5.2
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -40,20 +40,12 @@ class bcolors:
         BOLD = '\033[1m'
         UNDERLINE = '\033[4m'
 
-# Load hosts
-if os.path.isfile(config) is True:
-        with open(config) as data_file:
-                try:
-                        data = json.load(data_file)
-                except:
-                        print "Error: Config file found, but corrupt or blank."
-                        exit()
-else:
-        print "Error: Config file not found. (", config,")"
-        exit()
+# Functions
 
-# Count Hosts
-hostcount = len(data["hosts"])
+def createBlankConfig():
+        print "testing"
+        exit()
+        return
 
 # Get Hosts Function
 def getHosts():
@@ -101,6 +93,28 @@ def getUsage():
         print "  -g, --group           targets a specific group of predefined hosts"
         print "  -a, --add             adds a new host to the stooge configuration "
         return
+
+# Load hosts
+if os.path.isfile(config) is True:
+        with open(config) as data_file:
+                try:
+                        data = json.load(data_file)
+                except:
+                        print "Error: Config file found, but corrupt or blank."
+                        exit()
+else:
+        print "Error: Config file not found. (", config,")"
+        print "Would you like us to create a new one? (Y/N)",
+        answer = raw_input()
+        if answer == "Y" or answer == "y" or answer == "yes" or answer == "YES":
+                createBlankConfig()
+        elif answer == "N" or answer == "n" or answer == "no" or answer == "NO":
+                print "Please locate or create a valid config file and try again."
+                exit()
+        else:
+                exit()
+# Count Hosts
+hostcount = len(data["hosts"])
 
 # If list argument is provided, List and exit.
 if listarg is True:
