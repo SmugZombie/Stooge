@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.2
+# Version 0.6.3
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -147,12 +147,12 @@ def formatOutput(input):
         wrapper = textwrap.TextWrapper(initial_indent=' '*len(prefix),width=preferredWidth,subsequent_indent=' '*len(prefix))
         return wrapper.fill(input)
 
-def testPing(host,os):
-        if os == "CYGWIN":
+def testPing(host):
+        if OS == "CYGWIN":
                 output = commands.getstatusoutput("timeout 1 ping " + host + " -n 1 | grep -E -o 'Received = [0-9]+' | awk {'print $3'}")[1]
-        elif os == "LINUX":
+        elif OS == "LINUX":
                 output = commands.getstatusoutput("timeout 1 ping " + host + " -c 1 | grep -E -o '[0-9]+ received' | cut -f1 -d' '")[1]
-        elif os == "OSX":
+        elif OS == "OSX":
                 output = commands.getstatusoutput("timeout 1 ping " + host + " -c 1 | grep -E -o '[0-9]+ received' | cut -f1 -d' '")[1]
         else:
                 output = commands.getstatusoutput("echo 0'")[1]
@@ -161,6 +161,7 @@ def testPing(host,os):
         return output
 
 def getOS():
+	global OS
         output = commands.getstatusoutput('uname')[1]
         if output.find("CYGWIN") != -1:
                 output = "CYGWIN"
@@ -168,7 +169,8 @@ def getOS():
                 output = "LINUX"
         elif output.find("Darwin") != -1:
                 output = "OSX"
-        return output
+	OS = output
+        return
 
 def addHost():
         global configdata
@@ -180,7 +182,7 @@ def addHost():
         newhost = {}
         newhost["id"] = inID.replace(' ', '').lower()
         print "New Hostname: ", newhost["id"]
-	if testPing(newhost["id"], OS) == "1":
+	if testPing(newhost["id"]) == "1":
 		print "New host", newhost['id'], "is reachable."
 	else:
 		print "Failed to contact", newhost['id'], "host unreachable!"
@@ -211,9 +213,13 @@ def promptInput(message):
         input = raw_input()
         return input
 
-# Initialize Hosts
-loadConfig()
-OS = getOS()
+def initialize():
+	loadConfig()
+	getOS()
+	return
+
+# Initialize Script
+initialize()
 
 # If list argument is provided, List and exit.
 if listarg is True:
@@ -226,7 +232,7 @@ if addaction is True:
 
 if remaction is True:
         removeHost()
-        exit()
+        exit() # End Script
 
 # If a command is provided, validate host and continue
 elif command != "":
