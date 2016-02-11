@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.8
+# Version 0.6.9
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -256,7 +256,6 @@ def addHost():
         open(config, "w").write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
 
         print "Config File Written Successfully"
-        print "Please use --add to add hosts"
         return
 
 def removeHost():
@@ -308,30 +307,27 @@ elif command != "":
                 print "Command: ",command
         if host == "" or host == "all":
                 for x in xrange(hostcount):
-                    if sudo is True:
-                        user = data["hosts"][x]["sudouser"]
-                    else:
-                        user = data["hosts"][x]["user"]
-                    host = data["hosts"][x]["id"]
-                    print bcolors.FAIL + host + bcolors.ENDC
-                    print formatOutput(runCommand(user, host, command))
-        else:
-                for x in range(hostcount):
-                    foundhost = data["hosts"][x]["id"]
-                    if foundhost == host:
                         if sudo is True:
-                            user = data["hosts"][x]["sudouser"]
+                                user = data["hosts"][x]["sudouser"]
                         else:
-                            user = data["hosts"][x]["user"]
-                        break
-                    else:
-                        # Do Nothing
-        #       if user == "":
-        #           print "Host not found"
-        #           exit()
-        #       else:
+                                user = data["hosts"][x]["user"]
+                        host = data["hosts"][x]["id"]
                         print bcolors.FAIL + host + bcolors.ENDC
-                        print formatOutput(runCommand('root', host, command))
+                        print formatOutput(runCommand(user, host, command))
+        else:
+#               print "DEBUG: Individual host"
+                for x in range(hostcount):
+                        foundhost = data["hosts"][x]["id"]
+                        print foundhost
+                        if foundhost == host:
+#                               print "DEBUG: Match Found"
+                                if sudo is True:
+                                        user = data["hosts"][x]["sudouser"]
+                                else:
+                                        user = data["hosts"][x]["user"]
+                                break
+                print bcolors.FAIL + host + bcolors.ENDC
+                print formatOutput(runCommand(user, host, command))
         exit() # End Script
 
 # If nothing is provided, provide user with usage.
