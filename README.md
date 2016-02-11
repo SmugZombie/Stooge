@@ -24,3 +24,6 @@ Examples:
 
 Coming Soon:
   -g, --group           targets a specific group of predefined hosts</pre>
+
+FAQ:<br><br>
+<strong>Why build this if there are other options already made and tested?</strong><br>&nbsp &nsbp - To assist in learning a new programming / scripting language I task myself with a project that will encourage me to grow and expand without following step by step guides.
