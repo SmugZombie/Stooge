@@ -12,6 +12,8 @@ Run commands easily via ssh on remote devices
   -c, --command         the command to be run on the remote host(s)
   -s. --sudo            if enabled, will use sudouser in place of standard
   -v, --verbose         enabled verbose output of commands that are run
+  --add                 adds a new host to the stooge configuration
+  --remove              removes a selected host from the stooge configuration
 
 Examples:
   stooge -h server1 -c "shutdown -r now" -s
@@ -21,5 +23,4 @@ Examples:
                 standard user
 
 Coming Soon:
-  -g, --group           targets a specific group of predefined hosts
-  -a, --add             adds a new host to the stooge configuration</pre>
+  -g, --group           targets a specific group of predefined hosts</pre>
