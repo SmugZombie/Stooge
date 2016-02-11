@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.7
+# Version 0.6.8
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -98,6 +98,8 @@ def getUsage():
         print "  -c, --command         the command to be run on the remote host(s)"
         print "  -s. --sudo            if enabled, will use sudouser in place of standard"
         print "  -v, --verbose         enabled verbose output of commands that are run"
+        print "  --add                 adds a new host to the stooge configuration "
+        print "  --remove              removes a selected host from the stooge configuration "
         print ""
         print "Examples:"
         print "  stooge -h server1 -c \"shutdown -r now\" -s "
@@ -108,7 +110,6 @@ def getUsage():
         print ""
         print "Coming Soon:"
         print "  -g, --group           targets a specific group of predefined hosts"
-        print "  -a, --add             adds a new host to the stooge configuration "
         return
 
 def promptCreateNew():
@@ -252,13 +253,10 @@ def addHost():
         newhost["identityfile"] = keyfile
 
         data["hosts"].insert(hostcount, newhost)
-#       print str(data)
-#       return
         open(config, "w").write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
 
         print "Config File Written Successfully"
         print "Please use --add to add hosts"
-#       listHosts()
         return
 
 def removeHost():
