@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.5
+# Version 0.6.6
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -180,7 +180,6 @@ def addHost():
         if data["config"]["lockconfig"] == "true":
                 print "The config file is currently locked. Please manually edit the file and change 'lockconfig' to 'false'"
                 exit()
-        #inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
 
         proceed = False
         while proceed is False:
