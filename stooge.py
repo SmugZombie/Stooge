@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.9
+# Version 0.7.0
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -318,7 +318,7 @@ elif command != "":
 #               print "DEBUG: Individual host"
                 for x in range(hostcount):
                         foundhost = data["hosts"][x]["id"]
-                        print foundhost
+#                        print "DEBUG: ",foundhost
                         if foundhost == host:
 #                               print "DEBUG: Match Found"
                                 if sudo is True:
