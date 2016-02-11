@@ -7,3 +7,8 @@
 <strong>Adding Hosts</strong>
    - Double check / prevent duplicates
    - Add Question for hostname, offer to use nickname if resolves
+
+<strong>Missing Features</strong>
+   - Enable ssh-copy-id
+   - Enable create stooge user with Nopasswd sudo
+   - Detect OS (Store in config?)
