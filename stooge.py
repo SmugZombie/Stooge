@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.1
+# Version 0.6.2
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -177,10 +177,13 @@ def addHost():
                 print "The config file is currently locked. Please manually edit the file and change 'lockconfig' to 'false'"
                 exit()
         inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
-
         newhost = {}
         newhost["id"] = inID.replace(' ', '').lower()
         print "New Hostname: ", newhost["id"]
+	if testPing(newhost["id"], OS) == "1":
+		print "New host", newhost['id'], "is reachable."
+	else:
+		print "Failed to contact", newhost['id'], "host unreachable!"
         exit()
         newhost["user"] = "User"
         newhost["sudouser"] = "Sudo"
@@ -210,6 +213,7 @@ def promptInput(message):
 
 # Initialize Hosts
 loadConfig()
+OS = getOS()
 
 # If list argument is provided, List and exit.
 if listarg is True:
