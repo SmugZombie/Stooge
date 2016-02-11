@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.6
+# Version 0.6.7
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -262,15 +262,20 @@ def addHost():
         return
 
 def removeHost():
-        print "Removing Host"
+        print "Which host do you wish to remove? (number)"
+
+        listHosts()
+
+        answer = raw_input()
         obj  = json.load(open(config))
 
-        for i in xrange(len(obj['hosts'])):
-                if obj['hosts'][i]['id'] == "soc1":
-                        obj['hosts'].pop(i)
-                        break
-
-        open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
+        try:
+                obj['hosts'].pop(int(answer))
+                open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
+        except:
+                print "Error: Unable to remove host."
+        else:
+                print "Host removed successfully."
         return
 
 def promptInput(message):
