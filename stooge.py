@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6
+# Version 0.6.1
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -76,6 +76,8 @@ def runCommand(user, host, command):
         json = {}
         json['errcode'] = output[0]
         json['response'] = output[1]
+        if json['response'] == "" and json['errcode'] == 0:
+                json['response'] = "(successful with no output)"
         if verbose is True:
                 if json['errcode'] == 0:
                         output = bcolors.OKGREEN + "Success!" + bcolors.ENDC + "\n" + bcolors.OKBLUE + str(json['response']) + bcolors.ENDC
