@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.4
+# Version 0.6.5
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -48,7 +48,7 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"},\"hosts\":[{}]}"
+        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
         try:
                 file = open(config, "w")
                 file.write(blankconfig)
@@ -63,11 +63,13 @@ def createBlankConfig():
 def listHosts():
         print "Current Stooge Hosts"
         print ""
-        if hostcount >= 1:
+        if hostcount > 0:
                 for x in xrange(hostcount):
                         print " ", x, data["hosts"][x]["id"]
                 print ""
-        print "Total Stooge Hosts: ", hostcount
+                print "Total Stooge Hosts: ", hostcount
+        else:
+                print "No current Stooge Hosts."
         return
 
 # Run Remote Command
@@ -139,7 +141,7 @@ def loadConfig():
         else:
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
-	return
+        return
 
 def formatOutput(input):
         prefix = "    "
@@ -161,7 +163,7 @@ def testPing(host):
         return output
 
 def getOS():
-	global OS
+        global OS
         output = commands.getstatusoutput('uname')[1]
         if output.find("CYGWIN") != -1:
                 output = "CYGWIN"
@@ -169,7 +171,7 @@ def getOS():
                 output = "LINUX"
         elif output.find("Darwin") != -1:
                 output = "OSX"
-	OS = output
+        OS = output
         return
 
 def addHost():
@@ -180,91 +182,84 @@ def addHost():
                 exit()
         #inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
 
-	proceed = False
-	while proceed is False:
-		print "Enter a valid hostname. (Valid resolvable hostname or IP)"
-		hostname = raw_input()
-		if hostname == "":
-			proceed = False
-		else:
-			online = testPing(hostname)
-			if online == "1":
-				print "Do you wish to continue with", hostname,"? (Y/N)"
-				answer = raw_input()
-				if answer == "y" or answer == "Y":
-					proceed = True
-			else:
-				print "Unable to resolve",hostname,". Please enter a new hostname."
-	proceed = False
-	while proceed is False:
-		print "Enter the standard username for ", hostname,". (Blank if none)"
-		username = raw_input()
-		if username == "":
-			print "No standard username? (Y/N)"
-		else:
-			print "Is",username,"correct? (Y/N)"
-		answer = raw_input()
-		if answer == "y" or answer == "Y":
-			proceed = True
+        proceed = False
+        while proceed is False:
+                print "Enter a valid hostname. (Valid resolvable hostname or IP)"
+                hostname = raw_input()
+                if hostname == "":
+                        proceed = False
+                else:
+                        online = testPing(hostname)
+                        if online == "1":
+                                print "Do you wish to continue with", hostname,"? (Y/N)"
+                                answer = raw_input()
+                                if answer == "y" or answer == "Y":
+                                        proceed = True
+                        else:
+                                print "Unable to resolve",hostname,". Please enter a new hostname."
+        proceed = False
+        while proceed is False:
+                print "Enter the standard username for ", hostname,". (Blank if none)"
+                username = raw_input()
+                if username == "":
+                        print "No standard username? (Y/N)"
+                else:
+                        print "Is",username,"correct? (Y/N)"
+                answer = raw_input()
+                if answer == "y" or answer == "Y":
+                        proceed = True
 
-	proceed = False
-	while proceed is False:
-        	print "Enter the sudo username for ", hostname,". (Blank if none)"
-        	sudousername = raw_input()
-		if sudousername == "":
-			print "No sudo username? (Y/N)"
-		else:
-        		print "Is",sudousername,"correct? (Y/N)"
-        	answer = raw_input()
-        	if answer == "y" or answer == "Y":
-                	proceed = True
+        proceed = False
+        while proceed is False:
+                print "Enter the sudo username for ", hostname,". (Blank if none)"
+                sudousername = raw_input()
+                if sudousername == "":
+                        print "No sudo username? (Y/N)"
+                else:
+                        print "Is",sudousername,"correct? (Y/N)"
+                answer = raw_input()
+                if answer == "y" or answer == "Y":
+                        proceed = True
 
-	proceed = False
-	while proceed is False:
-        	print "Enter the group", hostname,"belongs to (Blank for Default)"
-        	group = raw_input()
-        	if group == "":
-			print "No group? (Y/N)"
-		else:	
-			print "Is",group,"correct? (Y/N)"
-        	answer = raw_input()
-        	if answer == "y" or answer == "Y":
-                	proceed = True
+        proceed = False
+        while proceed is False:
+                print "Enter the group", hostname,"belongs to (Blank for Default)"
+                group = raw_input()
+                if group == "":
+                        print "No group? (Y/N)"
+                else:
+                        print "Is",group,"correct? (Y/N)"
+                answer = raw_input()
+                if answer == "y" or answer == "Y":
+                        proceed = True
 
-	proceed = False
-	while proceed is False:
-        	print "If required, provide the path to the non default SSH Key", hostname,"(Blank for Default)"
-        	keyfile = raw_input()
-		if keyfile == "":
-			print "No special SSH Key? (Y/N)"
-		else:
-        		print "Is",keyfile,"correct? (Y/N)"
-        	answer = raw_input()
-        	if answer == "y" or answer == "Y":
-                	proceed = True
+        proceed = False
+        while proceed is False:
+                print "If required, provide the path to the non default SSH Key", hostname,"(Blank for Default)"
+                keyfile = raw_input()
+                if keyfile == "":
+                        print "No special SSH Key? (Y/N)"
+                else:
+                        print "Is",keyfile,"correct? (Y/N)"
+                answer = raw_input()
+                if answer == "y" or answer == "Y":
+                        proceed = True
 
-	#print "So far we have"
-	#print "Hostname:", hostname
-	#print "User    :", username
-	#print "SudoUser:", sudousername
-	#print "Group   :", group
-	#print "KeyFile :", keyfile
-	#return
-
-	newhost = {}
-	newhost["id"] = hostname
+        newhost = {}
+        newhost["id"] = hostname
         newhost["user"] = username
         newhost["sudouser"] = sudousername
         newhost["group"] = group
         newhost["identityfile"] = keyfile
 
         data["hosts"].insert(hostcount, newhost)
-	print str(data)
-	return
+#       print str(data)
+#       return
         open(config, "w").write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
 
-	print "Config File Written Successfully"
-	listHosts()
+        print "Config File Written Successfully"
+        print "Please use --add to add hosts"
+#       listHosts()
         return
 
 def removeHost():
@@ -285,9 +280,9 @@ def promptInput(message):
         return input
 
 def initialize():
-	loadConfig()
-	getOS()
-	return
+        loadConfig()
+        getOS()
+        return
 
 # Initialize Script
 initialize()
