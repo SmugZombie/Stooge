@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.6.3
+# Version 0.6.4
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -133,13 +133,13 @@ def loadConfig():
                                 data = json.load(data_file)
                                 # Count Hosts
                                 hostcount = len(data["hosts"])
-                                return hostcount
                         except:
                                 print "Error: Config file found, but corrupt or blank."
                                 exit()
         else:
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
+	return
 
 def formatOutput(input):
         prefix = "    "
@@ -178,22 +178,93 @@ def addHost():
         if data["config"]["lockconfig"] == "true":
                 print "The config file is currently locked. Please manually edit the file and change 'lockconfig' to 'false'"
                 exit()
-        inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
-        newhost = {}
-        newhost["id"] = inID.replace(' ', '').lower()
-        print "New Hostname: ", newhost["id"]
-	if testPing(newhost["id"]) == "1":
-		print "New host", newhost['id'], "is reachable."
-	else:
-		print "Failed to contact", newhost['id'], "host unreachable!"
-        exit()
-        newhost["user"] = "User"
-        newhost["sudouser"] = "Sudo"
-        newhost["group"] = "Group"
-        newhost["identityfile"] = ""
+        #inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
+
+	proceed = False
+	while proceed is False:
+		print "Enter a valid hostname. (Valid resolvable hostname or IP)"
+		hostname = raw_input()
+		if hostname == "":
+			proceed = False
+		else:
+			online = testPing(hostname)
+			if online == "1":
+				print "Do you wish to continue with", hostname,"? (Y/N)"
+				answer = raw_input()
+				if answer == "y" or answer == "Y":
+					proceed = True
+			else:
+				print "Unable to resolve",hostname,". Please enter a new hostname."
+	proceed = False
+	while proceed is False:
+		print "Enter the standard username for ", hostname,". (Blank if none)"
+		username = raw_input()
+		if username == "":
+			print "No standard username? (Y/N)"
+		else:
+			print "Is",username,"correct? (Y/N)"
+		answer = raw_input()
+		if answer == "y" or answer == "Y":
+			proceed = True
+
+	proceed = False
+	while proceed is False:
+        	print "Enter the sudo username for ", hostname,". (Blank if none)"
+        	sudousername = raw_input()
+		if sudousername == "":
+			print "No sudo username? (Y/N)"
+		else:
+        		print "Is",sudousername,"correct? (Y/N)"
+        	answer = raw_input()
+        	if answer == "y" or answer == "Y":
+                	proceed = True
+
+	proceed = False
+	while proceed is False:
+        	print "Enter the group", hostname,"belongs to (Blank for Default)"
+        	group = raw_input()
+        	if group == "":
+			print "No group? (Y/N)"
+		else:	
+			print "Is",group,"correct? (Y/N)"
+        	answer = raw_input()
+        	if answer == "y" or answer == "Y":
+                	proceed = True
+
+	proceed = False
+	while proceed is False:
+        	print "If required, provide the path to the non default SSH Key", hostname,"(Blank for Default)"
+        	keyfile = raw_input()
+		if keyfile == "":
+			print "No special SSH Key? (Y/N)"
+		else:
+        		print "Is",keyfile,"correct? (Y/N)"
+        	answer = raw_input()
+        	if answer == "y" or answer == "Y":
+                	proceed = True
+
+	#print "So far we have"
+	#print "Hostname:", hostname
+	#print "User    :", username
+	#print "SudoUser:", sudousername
+	#print "Group   :", group
+	#print "KeyFile :", keyfile
+	#return
+
+	newhost = {}
+	newhost["id"] = hostname
+        newhost["user"] = username
+        newhost["sudouser"] = sudousername
+        newhost["group"] = group
+        newhost["identityfile"] = keyfile
 
         data["hosts"].insert(hostcount, newhost)
-        open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
+	print str(data)
+	return
+        open(config, "w").write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
+
+	print "Config File Written Successfully"
+	listHosts()
         return
 
 def removeHost():
