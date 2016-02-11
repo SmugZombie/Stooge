@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.5.4
+# Version 0.6
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -23,12 +23,16 @@ arguments.add_argument('--host','-H', help="Select a specific host from the conf
 arguments.add_argument('--command','-c', help="The command you want to push to selected hosts", required=False, default="")
 arguments.add_argument('--sudo','-s', help="If the command is to be run via SUDO", required=False, action='store_true')
 arguments.add_argument('--verbose','-v', help="Enables verbose output from host", required=False, action='store_true')
+arguments.add_argument('--add', help="Allows the user to add a new host", required=False, action='store_true')
+arguments.add_argument('--remove', help="Allows the user to remove a previous host", required=False, action='store_true')
 args = arguments.parse_args()
 listarg = args.list
-host = args.host
+host = args.host.replace(' ', '').lower()
 command = args.command
 sudo = args.sudo
 verbose = args.verbose
+addaction = args.add
+remaction = args.remove
 
 # Styles
 class bcolors:
@@ -44,7 +48,7 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        blankconfig = "{\"config\":[{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"}],\"hosts\":[{}]}"
+        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"},\"hosts\":[{}]}"
         try:
                 file = open(config, "w")
                 file.write(blankconfig)
@@ -116,10 +120,11 @@ def promptCreateNew():
                 print "Invalid entry. Try again. (Y/N)"
                 promptCreateNew()
 
-def loadHosts():
+def loadConfig():
 # Load hosts
         global data
         global hostcount
+        global configdata
         if os.path.isfile(config) is True:
                 with open(config) as data_file:
                         try:
@@ -140,13 +145,82 @@ def formatOutput(input):
         wrapper = textwrap.TextWrapper(initial_indent=' '*len(prefix),width=preferredWidth,subsequent_indent=' '*len(prefix))
         return wrapper.fill(input)
 
+def testPing(host,os):
+        if os == "CYGWIN":
+                output = commands.getstatusoutput("timeout 1 ping " + host + " -n 1 | grep -E -o 'Received = [0-9]+' | awk {'print $3'}")[1]
+        elif os == "LINUX":
+                output = commands.getstatusoutput("timeout 1 ping " + host + " -c 1 | grep -E -o '[0-9]+ received' | cut -f1 -d' '")[1]
+        elif os == "OSX":
+                output = commands.getstatusoutput("timeout 1 ping " + host + " -c 1 | grep -E -o '[0-9]+ received' | cut -f1 -d' '")[1]
+        else:
+                output = commands.getstatusoutput("echo 0'")[1]
+        if str(output) != "1":
+                output = "0";
+        return output
+
+def getOS():
+        output = commands.getstatusoutput('uname')[1]
+        if output.find("CYGWIN") != -1:
+                output = "CYGWIN"
+        elif output.find("Linux") != -1:
+                output = "LINUX"
+        elif output.find("Darwin") != -1:
+                output = "OSX"
+        return output
+
+def addHost():
+        global configdata
+        global data
+        if data["config"]["lockconfig"] == "true":
+                print "The config file is currently locked. Please manually edit the file and change 'lockconfig' to 'false'"
+                exit()
+        inID = promptInput("What is the ID (hostname/ip) of the host you are adding?")
+
+        newhost = {}
+        newhost["id"] = inID.replace(' ', '').lower()
+        print "New Hostname: ", newhost["id"]
+        exit()
+        newhost["user"] = "User"
+        newhost["sudouser"] = "Sudo"
+        newhost["group"] = "Group"
+        newhost["identityfile"] = ""
+
+        data["hosts"].insert(hostcount, newhost)
+        open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
+        return
+
+def removeHost():
+        print "Removing Host"
+        obj  = json.load(open(config))
+
+        for i in xrange(len(obj['hosts'])):
+                if obj['hosts'][i]['id'] == "soc1":
+                        obj['hosts'].pop(i)
+                        break
+
+        open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
+        return
+
+def promptInput(message):
+        print message
+        input = raw_input()
+        return input
+
 # Initialize Hosts
-hostcount = loadHosts()
+loadConfig()
 
 # If list argument is provided, List and exit.
 if listarg is True:
         listHosts()
         exit() # End script
+
+if addaction is True:
+        addHost()
+        exit() # End script
+
+if remaction is True:
+        removeHost()
+        exit()
 
 # If a command is provided, validate host and continue
 elif command != "":
