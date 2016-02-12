@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.0
+# Version 0.7.1
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -185,28 +185,48 @@ def addHost():
         proceed = False
         while proceed is False:
                 print "Enter a valid hostname. (Valid resolvable hostname or IP)"
-                hostname = raw_input()
+                hostname = raw_input().replace(' ', '').lower()
                 if hostname == "":
                         proceed = False
                 else:
                         online = testPing(hostname)
                         if online == "1":
-                                print "Do you wish to continue with", hostname,"? (Y/N)"
+                                print "Do you wish to continue with", hostname,"? (Y/N) [Default Y]"
                                 answer = raw_input()
-                                if answer == "y" or answer == "Y":
+                                if answer == "y" or answer == "Y" or answer == "":
                                         proceed = True
                         else:
                                 print "Unable to resolve",hostname,". Please enter a new hostname."
         proceed = False
         while proceed is False:
+                print "Would you like to give this host a nickname for easier access? If no, hostname will be used. (Y/N)"
+                answer = raw_input()
+                if answer == "n" or answer == "N":
+                        nickname = hostname
+                        proceed = True
+                elif answer == "y" or answer == "Y":
+                        print "What nickname would you like to use for", hostname,"?"
+                        nickname = raw_input().replace(' ', '').lower()
+                        print "Is", nickname,"Correct? (Y/N) [Default Y]"
+                        answer = raw_input()
+                        if answer == "Y" or answer == "y" or answer == "":
+                                proceed = True
+                                break
+                        else:
+                                proceed = False
+                else:
+                        proceed = False
+
+        proceed = False
+        while proceed is False:
                 print "Enter the standard username for ", hostname,". (Blank if none)"
                 username = raw_input()
                 if username == "":
-                        print "No standard username? (Y/N)"
+                        print "No standard username? (Y/N) [Default Y]"
                 else:
-                        print "Is",username,"correct? (Y/N)"
+                        print "Is",username,"correct? (Y/N) [Default Y]"
                 answer = raw_input()
-                if answer == "y" or answer == "Y":
+                if answer == "y" or answer == "Y" or answer == "":
                         proceed = True
 
         proceed = False
@@ -214,11 +234,11 @@ def addHost():
                 print "Enter the sudo username for ", hostname,". (Blank if none)"
                 sudousername = raw_input()
                 if sudousername == "":
-                        print "No sudo username? (Y/N)"
+                        print "No sudo username? (Y/N) [Default Y]"
                 else:
-                        print "Is",sudousername,"correct? (Y/N)"
+                        print "Is",sudousername,"correct? (Y/N) [Default Y]"
                 answer = raw_input()
-                if answer == "y" or answer == "Y":
+                if answer == "y" or answer == "Y" or answer == "":
                         proceed = True
 
         proceed = False
@@ -226,11 +246,11 @@ def addHost():
                 print "Enter the group", hostname,"belongs to (Blank for Default)"
                 group = raw_input()
                 if group == "":
-                        print "No group? (Y/N)"
+                        print "No group? (Y/N) [Default Y]"
                 else:
-                        print "Is",group,"correct? (Y/N)"
+                        print "Is",group,"correct? (Y/N) [Default Y]"
                 answer = raw_input()
-                if answer == "y" or answer == "Y":
+                if answer == "y" or answer == "Y" or answer == "":
                         proceed = True
 
         proceed = False
@@ -238,15 +258,16 @@ def addHost():
                 print "If required, provide the path to the non default SSH Key", hostname,"(Blank for Default)"
                 keyfile = raw_input()
                 if keyfile == "":
-                        print "No special SSH Key? (Y/N)"
+                        print "No special SSH Key? (Y/N) [Default Y]"
                 else:
-                        print "Is",keyfile,"correct? (Y/N)"
+                        print "Is",keyfile,"correct? (Y/N) [Default Y]"
                 answer = raw_input()
-                if answer == "y" or answer == "Y":
+                if answer == "y" or answer == "Y" or answer == "":
                         proceed = True
 
         newhost = {}
-        newhost["id"] = hostname
+        newhost["id"] = nickname
+        newhost["hostname"] = hostname
         newhost["user"] = username
         newhost["sudouser"] = sudousername
         newhost["group"] = group
