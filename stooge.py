@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.1
+# Version 0.7.2
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -48,7 +48,7 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.3\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
+        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
         try:
                 file = open(config, "w")
                 file.write(blankconfig)
