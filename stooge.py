@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.2
+# Version 0.7.3
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -90,6 +90,16 @@ def runCommand(user, host, command):
 
         return output
 
+def checkDuplicates(nickname):
+#       print "DEBUG: checkDuplicates", nickname
+#       print "DEBUG:", str(data["hosts"])
+        if hostcount > 0:
+                for x in xrange(hostcount):
+                        hostname = data["hosts"][x]["id"]
+                        if hostname == nickname:
+                                return True
+                return False
+
 def getUsage():
         print "Usage: stooge -H [HOSTNAME/IP]... -c [COMMAND]... -s"
         print "Run commands easily via ssh on remote devices"
@@ -130,6 +140,7 @@ def loadConfig():
         global data
         global hostcount
         global configdata
+        global hosts
         if os.path.isfile(config) is True:
                 with open(config) as data_file:
                         try:
@@ -139,6 +150,10 @@ def loadConfig():
                         except:
                                 print "Error: Config file found, but corrupt or blank."
                                 exit()
+                        if hostcount > 0:
+                                hosts = {}
+                                for x in xrange(hostcount):
+                                        hosts[x] = data["hosts"][x]['id']
         else:
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
@@ -199,21 +214,25 @@ def addHost():
                                 print "Unable to resolve",hostname,". Please enter a new hostname."
         proceed = False
         while proceed is False:
-                print "Would you like to give this host a nickname for easier access? If no, hostname will be used. (Y/N)"
+                print "Would you like to give this host a nickname for easier access? If no, hostname will be used. (Y/N) [Default Y]"
                 answer = raw_input()
                 if answer == "n" or answer == "N":
                         nickname = hostname
                         proceed = True
-                elif answer == "y" or answer == "Y":
+                elif answer == "y" or answer == "Y" or answer == "":
                         print "What nickname would you like to use for", hostname,"?"
                         nickname = raw_input().replace(' ', '').lower()
-                        print "Is", nickname,"Correct? (Y/N) [Default Y]"
-                        answer = raw_input()
-                        if answer == "Y" or answer == "y" or answer == "":
-                                proceed = True
-                                break
+#                       print "DEBUG: ", nickname
+                        if checkDuplicates(nickname) is True:
+                                print "The nickname",nickname,"is already in use! Please use a different nickname."
                         else:
-                                proceed = False
+                                print "Is", nickname,"Correct? (Y/N) [Default Y]"
+                                answer = raw_input()
+                                if answer == "Y" or answer == "y" or answer == "":
+                                        proceed = True
+                                        break
+                                else:
+                                        proceed = False
                 else:
                         proceed = False
 
