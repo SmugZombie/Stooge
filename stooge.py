@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.5
+# Version 0.7.6
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -35,63 +35,45 @@ debug = args.debug
 
 # Styles
 class bcolors:
-        HEADER = '\033[95m'
-        OKBLUE = '\033[94m'
-        OKGREEN = '\033[92m'
-        WARNING = '\033[93m'
-        FAIL = '\033[91m'
-        ENDC = '\033[0m'
-        BOLD = '\033[1m'
-        UNDERLINE = '\033[4m'
+        HEADER = '\033[95m';  OKBLUE = '\033[94m';   OKGREEN = '\033[92m';
+        WARNING = '\033[93m'; FAIL = '\033[91m';     ENDC = '\033[0m';
+        BOLD = '\033[1m';     UNDERLINE = '\033[4m';
 
 # Functions
 
 def createBlankConfig():
-        try:
-                file = open(config, "w")
-                file.write(blankconfig)
-        except:
-                print "Error! Unable to write to file (", config, ")."
-        else:
-                print "Config created successfully. Please add hosts to ", config
-        exit()
+        try: file = open(config, "w"); file.write(blankconfig)
+        except: print "Error! Unable to write to file (", config, ")."
+        else: print "Config created successfully. Please add hosts to ", config; exit()
         return
 
 # Get Hosts Function
 def listHosts():
-        print "Current Stooge Hosts"
-        print ""
+        print "Current Stooge Hosts"; print ""
         if hostcount > 0:
-                for x in xrange(hostcount):
-                        print " ", x, data["hosts"][x]["id"]
-                print ""
-                print "Total Stooge Hosts: ", hostcount
-        else:
-                print "No current Stooge Hosts."
+                for x in xrange(hostcount): print " ", x, data["hosts"][x]["id"]
+                print ""; print "Total Stooge Hosts: ", hostcount
+        else: print "No current Stooge Hosts."
         return
 
 # Run Remote Command
 def runCommand(user, host, command):
         output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)
         json = {}; json['errcode'] = output[0]; json['response'] = output[1]
-        if json['response'] == "" and json['errcode'] == 0:
-                json['response'] = "(successful with no output)"
+        if json['response'] == "" and json['errcode'] == 0: json['response'] = "(successful with no output)"
         if verbose is True:
                 if json['errcode'] == 0:
                         output = bcolors.OKGREEN + "Success!" + bcolors.ENDC + "\n" + bcolors.OKBLUE + str(json['response']) + bcolors.ENDC
                 else:
                         output = bcolors.FAIL + "Error! " + str(json['errcode']) + bcolors.ENDC + " \n" + bcolors.OKBLUE  + str(json['response']) + bcolors.ENDC
-        else:
-                output = bcolors.OKBLUE + json['response'] + bcolors.ENDC
-
+        else: output = bcolors.OKBLUE + json['response'] + bcolors.ENDC
         return output
 
 def checkDuplicates(nickname):
         if hostcount > 0:
                 for x in xrange(hostcount):
-                        hostname = data["hosts"][x]["id"]
-                        if hostname == nickname:
-                                return True
+                        hostname = data["hosts"][x]["id"];
+                        if hostname == nickname: return True
                 return False
 
 def getUsage():
@@ -120,14 +102,11 @@ def promptCreateNew():
         print "Would you like us to create a new one? (Y/N)"
         answer = raw_input()
         if answer == "Y" or answer == "y" or answer == "yes" or answer == "YES":
-                createBlankConfig()
-                exit()
+                createBlankConfig(); exit()
         elif answer == "N" or answer == "n" or answer == "no" or answer == "NO":
-                print "Please locate or create a valid config file and try again."
-                exit()
+                print "Please locate or create a valid config file and try again."; exit()
         else:
-                print "Invalid entry. Try again. (Y/N)"
-                promptCreateNew()
+                print "Invalid entry. Try again. (Y/N)"; promptCreateNew()
 
 def loadConfig():
 # Load hosts
