@@ -1,5 +1,6 @@
 #Changelog
 
+- 0.7.1 - 02112016 - Added "Nickname" to Add Function and added Default answers to questions
 - 0.7.0 - 02112016 - Commented out Debug Lines
 - 0.6.9 - 02112016 - Fixed individual host ability to run commands
 - 0.6.8 - 02112016 - Updated Usage Prompt now that Add / Remove features are implements
