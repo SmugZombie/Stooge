@@ -1,21 +1,16 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.4
+# Version 0.7.5
 # github.com/smugzombie - stooge.us
 
 # Python Imports
-import json
-import subprocess
-import pprint
-import argparse
-import commands
-import os
-import textwrap
-import atexit
+import json;     import subprocess;   import pprint;   import argparse;
+import commands; import os;           import textwrap; import atexit
 
 # Defaults
-config = str(os.path.dirname(os.path.realpath(__file__)))+"/stooge.json"
+config = "./stooge.json"
+blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
 
 # Arguments
 arguments = argparse.ArgumentParser()
@@ -31,10 +26,11 @@ args = arguments.parse_args()
 listarg = args.list
 host = args.host.replace(' ', '').lower()
 command = args.command
-sudo = args.sudo
-verbose = args.verbose
-addaction = args.add
-remaction = args.remove
+# Additional Options
+sudo = args.sudo; verbose = args.verbose;
+# Add / Remove Hosts
+addaction = args.add; remaction = args.remove;
+# Debugging
 debug = args.debug
 
 # Styles
@@ -51,7 +47,6 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
         try:
                 file = open(config, "w")
                 file.write(blankconfig)
@@ -78,9 +73,7 @@ def listHosts():
 # Run Remote Command
 def runCommand(user, host, command):
         output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)
-        json = {}
-        json['errcode'] = output[0]
-        json['response'] = output[1]
+        json = {}; json['errcode'] = output[0]; json['response'] = output[1]
         if json['response'] == "" and json['errcode'] == 0:
                 json['response'] = "(successful with no output)"
         if verbose is True:
@@ -94,8 +87,6 @@ def runCommand(user, host, command):
         return output
 
 def checkDuplicates(nickname):
-#       print "DEBUG: checkDuplicates", nickname
-#       print "DEBUG:", str(data["hosts"])
         if hostcount > 0:
                 for x in xrange(hostcount):
                         hostname = data["hosts"][x]["id"]
@@ -140,10 +131,7 @@ def promptCreateNew():
 
 def loadConfig():
 # Load hosts
-        global data
-        global hostcount
-        global configdata
-        global hosts
+        global data; global hostcount; global configdata; global hosts
         if os.path.isfile(config) is True:
                 with open(config) as data_file:
                         try:
@@ -163,8 +151,7 @@ def loadConfig():
         return
 
 def formatOutput(input):
-        prefix = "    "
-        preferredWidth = 70
+        prefix = "    "; preferredWidth = 70
         wrapper = textwrap.TextWrapper(initial_indent=' '*len(prefix),width=preferredWidth,subsequent_indent=' '*len(prefix))
         return wrapper.fill(input)
 
@@ -194,8 +181,7 @@ def getOS():
         return
 
 def addHost():
-        global configdata
-        global data
+        global configdata; global data
         if data["config"]["lockconfig"] == "true":
                 print "The config file is currently locked. Please manually edit the file and change 'lockconfig' to 'false'"
                 exit()
@@ -304,12 +290,9 @@ def addHost():
 
 def removeHost():
         print "Which host do you wish to remove? (number)"
-
         listHosts()
-
         answer = raw_input()
         obj  = json.load(open(config))
-
         try:
                 obj['hosts'].pop(int(answer))
                 open(config, "w").write(json.dumps(obj, sort_keys=True, indent=4, separators=(',', ': ')))
@@ -320,23 +303,14 @@ def removeHost():
         return
 
 def promptInput(message):
-        print message
-        input = raw_input()
-        return input
+        print message; input = raw_input(); return input
 
 def initialize():
-        loadConfig()
-        getOS()
-        atexit.register(goodbye)
-        return
+        loadConfig(); getOS(); return
 
 def Debug(message):
         if debug is True:
                 print bcolors.OKGREEN + bcolors.BOLD + "DEBUG: " + bcolors.ENDC + str(message)
-        return
-
-def goodbye():
-        print "Goodbye!"
         return
 
 # Initialize Script
@@ -390,5 +364,4 @@ elif command != "":
 
 # If nothing is provided, provide user with usage.
 else:
-        getUsage()
-        exit()
+        getUsage(); exit()
