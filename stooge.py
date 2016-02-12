@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.3
+# Version 0.7.4
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -12,6 +12,7 @@ import argparse
 import commands
 import os
 import textwrap
+import atexit
 
 # Defaults
 config = str(os.path.dirname(os.path.realpath(__file__)))+"/stooge.json"
@@ -25,6 +26,7 @@ arguments.add_argument('--sudo','-s', help="If the command is to be run via SUDO
 arguments.add_argument('--verbose','-v', help="Enables verbose output from host", required=False, action='store_true')
 arguments.add_argument('--add', help="Allows the user to add a new host", required=False, action='store_true')
 arguments.add_argument('--remove', help="Allows the user to remove a previous host", required=False, action='store_true')
+arguments.add_argument('--debug', help="Enables Debugging", required=False, action='store_true')
 args = arguments.parse_args()
 listarg = args.list
 host = args.host.replace(' ', '').lower()
@@ -33,6 +35,7 @@ sudo = args.sudo
 verbose = args.verbose
 addaction = args.add
 remaction = args.remove
+debug = args.debug
 
 # Styles
 class bcolors:
@@ -222,7 +225,6 @@ def addHost():
                 elif answer == "y" or answer == "Y" or answer == "":
                         print "What nickname would you like to use for", hostname,"?"
                         nickname = raw_input().replace(' ', '').lower()
-#                       print "DEBUG: ", nickname
                         if checkDuplicates(nickname) is True:
                                 print "The nickname",nickname,"is already in use! Please use a different nickname."
                         else:
@@ -292,6 +294,8 @@ def addHost():
         newhost["group"] = group
         newhost["identityfile"] = keyfile
 
+        Debug(json.dumps(newhost, sort_keys=True, indent=4, separators=(',', ': ')))
+
         data["hosts"].insert(hostcount, newhost)
         open(config, "w").write(json.dumps(data, sort_keys=True, indent=4, separators=(',', ': ')))
 
@@ -323,21 +327,35 @@ def promptInput(message):
 def initialize():
         loadConfig()
         getOS()
+        atexit.register(goodbye)
+        return
+
+def Debug(message):
+        if debug is True:
+                print bcolors.OKGREEN + bcolors.BOLD + "DEBUG: " + bcolors.ENDC + str(message)
+        return
+
+def goodbye():
+        print "Goodbye!"
         return
 
 # Initialize Script
+Debug("Debug Enabled")
 initialize()
 
 # If list argument is provided, List and exit.
 if listarg is True:
+        Debug("Listing Hosts")
         listHosts()
         exit() # End script
 
 if addaction is True:
+        Debug("Adding Host")
         addHost()
         exit() # End script
 
 if remaction is True:
+        Debug("Removing Host")
         removeHost()
         exit() # End Script
 
@@ -355,12 +373,12 @@ elif command != "":
                         print bcolors.FAIL + host + bcolors.ENDC
                         print formatOutput(runCommand(user, host, command))
         else:
-#               print "DEBUG: Individual host"
+                Debug("Individual host")
                 for x in range(hostcount):
                         foundhost = data["hosts"][x]["id"]
-#                        print "DEBUG: ",foundhost
+                        Debug("Curr Host: "+foundhost)
                         if foundhost == host:
-#                               print "DEBUG: Match Found"
+                                Debug("Match Found")
                                 if sudo is True:
                                         user = data["hosts"][x]["sudouser"]
                                 else:
