@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.8
+# Version 0.7.9
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -64,7 +64,13 @@ def listHosts():
 
 # Run Remote Command
 def runCommand(user, host, command):
-        output = commands.getstatusoutput('ssh '+user+'@'+host+" "+command)
+	identityfile = ""
+	for x in xrange(hostcount):
+		hostname = data['hosts'][x]['id']
+		if host == hostname: identityfile = data['hosts'][x]['identityfile']; host = data['hosts'][x]['hostname']; break;
+	if identityfile != "": identity = "-i "+ str(identityfile) +" "
+	else: identity = ""
+	output = commands.getstatusoutput('ssh '+identity+user+'@'+host+" "+command)
         json = {}; json['errcode'] = output[0]; json['response'] = output[1]
         if json['response'] == "" and json['errcode'] == 0: json['response'] = "(successful with no output)"
         if verbose is True:
@@ -112,6 +118,9 @@ def loadConfig():
                                 hosts = {}
                                 for x in xrange(hostcount):
                                         hosts[x] = data["hosts"][x]['id']
+					#hostname = str(data["hosts"][x]['id'])
+					#hosts[hostname]['identityfile'] = data["hosts"][x]['identityfile']
+					#hosts.insert(hostname, newhost)
         else:
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
