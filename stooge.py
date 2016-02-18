@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.8.0
+# Version 0.8.1
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -12,14 +12,14 @@ import commands; import os;           import textwrap; import atexit
 # Defaults
 # scriptname = str(os.path.basename(__file__))
 # scriptname = str(sys.argv[0])
-currentdir = str(os.path.dirname(os.path.realpath(__file__)))
-config = currentdir+"/stooge.json"
-blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
+currentDir = str(os.path.dirname(os.path.realpath(__file__)))
+config = currentDir+"/stooge.json"
+blankConfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
 
 # Arguments
 arguments = argparse.ArgumentParser()
 arguments.add_argument('--list','-l', help="List current devices in the config", required=False, action='store_true')
-arguments.add_argument('--host','-H', help="Select a specific host from the config", required=False, default="")
+arguments.add_argument('--host','-H', help="Select a specific host from the config:           -H '*' (all)  or -H 'server1'", required=False, default="")
 arguments.add_argument('--group','-g', help="Select a specific group of hosts from the config", required=False, default="")
 arguments.add_argument('--command','-c', help="The command you want to push to selected hosts", required=False, default="")
 arguments.add_argument('--sudo','-s', help="If the command is to be run via SUDO", required=False, action='store_true')
@@ -28,14 +28,14 @@ arguments.add_argument('--add', help="Allows the user to add a new host", requir
 arguments.add_argument('--remove', help="Allows the user to remove a previous host", required=False, action='store_true')
 arguments.add_argument('--debug', help="Enables Debugging", required=False, action='store_true')
 args = arguments.parse_args()
-listarg = args.list
+list = args.list
 host = args.host.replace(' ', '').lower()
 group = args.group.lower()
 command = args.command
 # Additional Options
 sudo = args.sudo; verbose = args.verbose;
 # Add / Remove Hosts
-addaction = args.add; remaction = args.remove;
+addAction = args.add; remAction = args.remove;
 # Debugging
 debug = args.debug
 
@@ -48,7 +48,7 @@ class bcolors:
 # Functions
 
 def createBlankConfig():
-        try: file = open(config, "w"); file.write(blankconfig)
+        try: file = open(config, "w"); file.write(blankConfig)
         except: print "Error! Unable to write to file (", config, ")."
         else: print "Config created successfully. Please add hosts to ", config; exit()
         return
@@ -296,8 +296,7 @@ def initialize():
         loadConfig(); getOS(); return
 
 def Debug(message):
-        if debug is True:
-                print bcolors.OKGREEN + bcolors.BOLD + "DEBUG: " + bcolors.ENDC + str(message)
+        if debug is True: print bcolors.OKGREEN + bcolors.BOLD + "DEBUG: " + bcolors.ENDC + str(message)
         return
 def processGroup(group):
         if command == "": printError("No command provided!"); exit();
@@ -320,22 +319,67 @@ def processGroup(group):
                 print str(matches)+" hosts found for group: "+ group
         return
 
+def findHost(host):
+        Debug("Looking for hosts starting with: "+host)
+        matches = 0;
+        search = host.replace('*', '')
+        if hostcount > 0:
+                for x in xrange(hostcount):
+                        ismatch = data["hosts"][x]["id"]
+                        host = data["hosts"][x]["hostname"]
+                        nickname = data["hosts"][x]["id"]
+                        if search in ismatch:
+                                matches += 1
+                                print bcolors.FAIL + nickname + bcolors.ENDC
+                                print formatOutput(runCommand(host, command))
+
+        else: print "No current Stooge Hosts."
+
+        if matches <= 0:
+                printError("No hosts found matching: "+search)
+        else:
+                print str(matches)+" hosts matching: "+ search
+        return
+def validateCommand():
+        if verbose is True: print "Command: ",command
+        if command == "": printError("No command provided!"); exit()
+        return
+
+def processAll():
+        Debug("Processing all hosts")
+        for x in xrange(hostcount):
+                host = data["hosts"][x]["id"]
+                print bcolors.FAIL + host + bcolors.ENDC
+                print formatOutput(runCommand(host, command))
+        return
+
+def processHost():
+        Debug("Individual host")
+        for x in range(hostcount):
+                foundhost = data["hosts"][x]["id"]
+                Debug("Curr Host: "+foundhost)
+                if foundhost == host:
+                        Debug("Match Found")
+                        print bcolors.FAIL + host + bcolors.ENDC
+                        print formatOutput(runCommand(host, command))
+        return
+
 # Initialize Script
 Debug("Debug Enabled")
 initialize()
 
 # If list argument is provided, List and exit.
-if listarg is True:
+if list is True:
         Debug("Listing Hosts")
         listHosts()
         exit() # End script
 
-if addaction is True:
+if addAction is True:
         Debug("Adding Host")
         addHost()
         exit() # End script
 
-if remaction is True:
+if remAction is True:
         Debug("Removing Host")
         removeHost()
         exit() # End Script
@@ -343,32 +387,25 @@ if remaction is True:
 # If both host and group are defined, error and exit
 if host != "" and group != "":
         printError("Both host and group cannot be specified!")
-        exit()
-
-if group != "":
-        processGroup(group)
-        exit()
-
-# If a command is provided, validate host and continue
-elif command != "":
-        if verbose is True:
-                print "Command: ",command
-        if host == "" or host == "all":
-                for x in xrange(hostcount):
-                        host = data["hosts"][x]["id"]
-                        print bcolors.FAIL + host + bcolors.ENDC
-                        print formatOutput(runCommand(host, command))
-        else:
-                Debug("Individual host")
-                for x in range(hostcount):
-                        foundhost = data["hosts"][x]["id"]
-                        Debug("Curr Host: "+foundhost)
-                        if foundhost == host:
-                                Debug("Match Found")
-                print bcolors.FAIL + host + bcolors.ENDC
-                print formatOutput(runCommand(host, command))
         exit() # End Script
 
-# If nothing is provided, provide user with usage.
+# If group, process group
+if group != "":
+        processGroup(group)
+        exit() # End Script
+
+# If wildcard host, process hosts
+if "*" in host and host != "*":
+        findHost(host)
+        exit() # End Script
+
+if host == "":
+        printError("Invalid host provided. See -h for assistance.")
+elif host == "all" or host == "*":
+        validateCommand()
+        processAll()
+        exit()
 else:
-        getUsage(); exit()
+        validateCommand()
+        processHost()
+        exit
