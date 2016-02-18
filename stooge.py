@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.6
+# Version 0.7.7
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -9,7 +9,8 @@ import json;     import subprocess;   import pprint;   import argparse;
 import commands; import os;           import textwrap; import atexit
 
 # Defaults
-config = "./stooge.json"
+currentdir = str(os.path.dirname(os.path.realpath(__file__)))
+config = currentdir+"/stooge.json"
 blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
 
 # Arguments
