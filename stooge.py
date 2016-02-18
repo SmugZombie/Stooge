@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.7
+# Version 0.7.8
 # github.com/smugzombie - stooge.us
 
 # Python Imports
 import json;     import subprocess;   import pprint;   import argparse;
 import commands; import os;           import textwrap; import atexit
+# import sys;
 
 # Defaults
+# scriptname = str(os.path.basename(__file__))
+# scriptname = str(sys.argv[0])
 currentdir = str(os.path.dirname(os.path.realpath(__file__)))
 config = currentdir+"/stooge.json"
 blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"false\", \"configversion\" : \"0.4\", \"checkforupdates\" : \"true\"},\"hosts\":[]}"
@@ -17,6 +20,7 @@ blankconfig = "{\"config\":{\"masteridentityfile\" : \"\", \"lockconfig\" : \"fa
 arguments = argparse.ArgumentParser()
 arguments.add_argument('--list','-l', help="List current devices in the config", required=False, action='store_true')
 arguments.add_argument('--host','-H', help="Select a specific host from the config", required=False, default="")
+arguments.add_argument('--group','-g', help="Select a specific group of hosts from the config", required=False, default="")
 arguments.add_argument('--command','-c', help="The command you want to push to selected hosts", required=False, default="")
 arguments.add_argument('--sudo','-s', help="If the command is to be run via SUDO", required=False, action='store_true')
 arguments.add_argument('--verbose','-v', help="Enables verbose output from host", required=False, action='store_true')
@@ -26,6 +30,7 @@ arguments.add_argument('--debug', help="Enables Debugging", required=False, acti
 args = arguments.parse_args()
 listarg = args.list
 host = args.host.replace(' ', '').lower()
+group = args.group.lower()
 command = args.command
 # Additional Options
 sudo = args.sudo; verbose = args.verbose;
@@ -78,25 +83,7 @@ def checkDuplicates(nickname):
                 return False
 
 def getUsage():
-        print "Usage: stooge -H [HOSTNAME/IP]... -c [COMMAND]... -s"
-        print "Run commands easily via ssh on remote devices"
-        print ""
-        print "  -H, --host            the targeted host for the remote command"
-        print "  -c, --command         the command to be run on the remote host(s)"
-        print "  -s. --sudo            if enabled, will use sudouser in place of standard"
-        print "  -v, --verbose         enabled verbose output of commands that are run"
-        print "  --add                 adds a new host to the stooge configuration "
-        print "  --remove              removes a selected host from the stooge configuration "
-        print ""
-        print "Examples:"
-        print "  stooge -h server1 -c \"shutdown -r now\" -s "
-        print "      - Tells the host server1 to shutdown/reboot now using a sudo user"
-        print "  stooge -c \"who\""
-        print "      - Tells all available hosts to return 'who' is logged in, using a"
-        print "         standard user"
-        print ""
-        print "Coming Soon:"
-        print "  -g, --group           targets a specific group of predefined hosts"
+        printError("Invalid arguments provided. Please re-run the script with '-h' for more information on proper usage. ")
         return
 
 def promptCreateNew():
@@ -285,6 +272,9 @@ def removeHost():
 def promptInput(message):
         print message; input = raw_input(); return input
 
+def printError(message):
+        print bcolors.FAIL + "Error: " + bcolors.ENDC + message
+
 def initialize():
         loadConfig(); getOS(); return
 
@@ -312,6 +302,11 @@ if remaction is True:
         Debug("Removing Host")
         removeHost()
         exit() # End Script
+
+# If both host and group are defined, error and exit
+if host != "" and group != "":
+        printError("Both host and group cannot be specified!")
+        exit()
 
 # If a command is provided, validate host and continue
 elif command != "":
