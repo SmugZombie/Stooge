@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.7.9
+# Version 0.8.0
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -63,14 +63,22 @@ def listHosts():
         return
 
 # Run Remote Command
-def runCommand(user, host, command):
-	identityfile = ""
-	for x in xrange(hostcount):
-		hostname = data['hosts'][x]['id']
-		if host == hostname: identityfile = data['hosts'][x]['identityfile']; host = data['hosts'][x]['hostname']; break;
-	if identityfile != "": identity = "-i "+ str(identityfile) +" "
-	else: identity = ""
-	output = commands.getstatusoutput('ssh '+identity+user+'@'+host+" "+command)
+def runCommand(host, command):
+        identityfile = ""; user = "";
+        for x in xrange(hostcount):
+                hostname = data['hosts'][x]['id']
+                if host == hostname:
+                        identityfile = data['hosts'][x]['identityfile'];
+                        host = data['hosts'][x]['hostname'];
+                        if sudo is True:
+                                user = data["hosts"][x]["sudouser"]
+                        else:
+                                user = data["hosts"][x]["user"]
+                                break
+                        break;
+        if identityfile != "": identity = "-i "+ str(identityfile) +" "
+        else: identity = ""
+        output = commands.getstatusoutput('ssh '+identity+user+'@'+host+" "+command)
         json = {}; json['errcode'] = output[0]; json['response'] = output[1]
         if json['response'] == "" and json['errcode'] == 0: json['response'] = "(successful with no output)"
         if verbose is True:
@@ -118,9 +126,9 @@ def loadConfig():
                                 hosts = {}
                                 for x in xrange(hostcount):
                                         hosts[x] = data["hosts"][x]['id']
-					#hostname = str(data["hosts"][x]['id'])
-					#hosts[hostname]['identityfile'] = data["hosts"][x]['identityfile']
-					#hosts.insert(hostname, newhost)
+                                        #hostname = str(data["hosts"][x]['id'])
+                                        #hosts[hostname]['identityfile'] = data["hosts"][x]['identityfile']
+                                        #hosts.insert(hostname, newhost)
         else:
                 print "Error: Config file not found. (", config,")"
                 promptCreateNew()
@@ -291,6 +299,26 @@ def Debug(message):
         if debug is True:
                 print bcolors.OKGREEN + bcolors.BOLD + "DEBUG: " + bcolors.ENDC + str(message)
         return
+def processGroup(group):
+        if command == "": printError("No command provided!"); exit();
+        matches = 0;
+        if hostcount > 0:
+                for x in xrange(hostcount):
+                        isgroup =  data["hosts"][x]["group"]
+                        host = data["hosts"][x]["hostname"]
+                        nickname = data["hosts"][x]["id"]
+                        if isgroup == group:
+                                matches += 1
+                                print bcolors.FAIL + nickname + bcolors.ENDC
+                                print formatOutput(runCommand(host, command))
+
+        else: print "No current Stooge Hosts."
+
+        if matches <= 0:
+                printError("No hosts found for group: "+ group)
+        else:
+                print str(matches)+" hosts found for group: "+ group
+        return
 
 # Initialize Script
 Debug("Debug Enabled")
@@ -317,19 +345,19 @@ if host != "" and group != "":
         printError("Both host and group cannot be specified!")
         exit()
 
+if group != "":
+        processGroup(group)
+        exit()
+
 # If a command is provided, validate host and continue
 elif command != "":
         if verbose is True:
                 print "Command: ",command
         if host == "" or host == "all":
                 for x in xrange(hostcount):
-                        if sudo is True:
-                                user = data["hosts"][x]["sudouser"]
-                        else:
-                                user = data["hosts"][x]["user"]
                         host = data["hosts"][x]["id"]
                         print bcolors.FAIL + host + bcolors.ENDC
-                        print formatOutput(runCommand(user, host, command))
+                        print formatOutput(runCommand(host, command))
         else:
                 Debug("Individual host")
                 for x in range(hostcount):
@@ -337,13 +365,8 @@ elif command != "":
                         Debug("Curr Host: "+foundhost)
                         if foundhost == host:
                                 Debug("Match Found")
-                                if sudo is True:
-                                        user = data["hosts"][x]["sudouser"]
-                                else:
-                                        user = data["hosts"][x]["user"]
-                                break
                 print bcolors.FAIL + host + bcolors.ENDC
-                print formatOutput(runCommand(user, host, command))
+                print formatOutput(runCommand(host, command))
         exit() # End Script
 
 # If nothing is provided, provide user with usage.
