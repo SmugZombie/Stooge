@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.8.1
+# Version 0.8.2
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -328,7 +328,7 @@ def findHost(host):
                         ismatch = data["hosts"][x]["id"]
                         host = data["hosts"][x]["hostname"]
                         nickname = data["hosts"][x]["id"]
-                        if search in ismatch:
+                        if ismatch.startswith(search) is True:
                                 matches += 1
                                 print bcolors.FAIL + nickname + bcolors.ENDC
                                 print formatOutput(runCommand(host, command))
