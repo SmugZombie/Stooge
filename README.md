@@ -26,7 +26,7 @@ Coming Soon:
   -g, --group           targets a specific group of predefined hosts</pre>
   
 <strong>Installation</strong>:
-<pre>wget http://source.stooge.us -O stooge.py; chmod +x stooge.py; ./stooge.py</pre>
+<pre>wget http://source.stooge.us -O stooge; chmod +x stooge; ./stooge</pre>
 
 FAQ:<br><br>
 <strong>Why build this if there are other options already made and tested?</strong><br> - To assist in learning a new programming / scripting language I task myself with a project that will encourage me to grow and expand my knowledge of the capabilities and features of a the language without following boring step by step guides.<br> - Because its fun.
