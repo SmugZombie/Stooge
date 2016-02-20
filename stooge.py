@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-# Version 0.8.2
+Version="0.8.2"
 # github.com/smugzombie - stooge.us
 
 # Python Imports
