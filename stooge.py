@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-Version="0.8.2"
+Version="0.8.3"
 # github.com/smugzombie - stooge.us
 
 # Python Imports
-import json;     import subprocess;   import pprint;   import argparse;
-import commands; import os;           import textwrap; import atexit
+import json;     import subprocess;   import pprint;
+import argparse; import commands;     import os;
+import re;       import textwrap;     import atexit;
+
 # import sys;
 
 # Defaults
@@ -27,6 +29,7 @@ arguments.add_argument('--verbose','-v', help="Enables verbose output from host"
 arguments.add_argument('--add', help="Allows the user to add a new host", required=False, action='store_true')
 arguments.add_argument('--remove', help="Allows the user to remove a previous host", required=False, action='store_true')
 arguments.add_argument('--debug', help="Enables Debugging", required=False, action='store_true')
+arguments.add_argument('--update', help="Checks for latest updates in Git", required=False, action='store_true')
 args = arguments.parse_args()
 list = args.list
 host = args.host.replace(' ', '').lower()
@@ -38,6 +41,8 @@ sudo = args.sudo; verbose = args.verbose;
 addAction = args.add; remAction = args.remove;
 # Debugging
 debug = args.debug
+# Updates
+update = args.update
 
 # Styles
 class bcolors:
@@ -364,6 +369,51 @@ def processHost():
                         print formatOutput(runCommand(host, command))
         return
 
+def checkForUpdate():
+        Debug("Checking for updates")
+        import urllib2; import ssl; from distutils.version import LooseVersion
+        rawfileurl = "https://raw.githubusercontent.com/SmugZombie/Stooge/master/stooge.py"
+        Debug("Url: "+rawfileurl)
+#       regex = re.compile(ur'(?P<title>Version=.)(?P<version>.{1,3}..{1,3}..{1,3})(.\n)')
+        regex = re.compile(ur'(\d+\.\d+\.\d+)')
+        req = urllib2.Request(rawfileurl)
+
+        # SSL
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        output = {}; output['url'] = rawfileurl;
+
+        try:
+                response = urllib2.urlopen(req, context=ctx)
+        except urllib2.HTTPError, err:
+                Debug("HTTP Error: "+ err.code)
+                output['code'] = err.code; response = ""
+        else:
+                Debug("HTTP Success:")
+                output['code'] = response.getcode(); response = response.read()
+#               Debug("Response: "+ str(response))
+
+        if response != "":
+                try:
+                        newVersion = re.search(regex, response).group(1)
+                except:
+                        newVersion = "Unknown"
+                        update = False
+#               except Exception,e: print str(e)
+                else:
+                        if LooseVersion(newVersion) > LooseVersion(Version):
+                                update = True
+                        else:
+                                update = False
+        else:
+                update = False
+        print "Current Version : " + Version
+        print "Latest Version  : " + newVersion
+        print "Update Available: " + str(update)
+        exit()
+
 # Initialize Script
 Debug("Debug Enabled")
 initialize()
@@ -373,6 +423,11 @@ if list is True:
         Debug("Listing Hosts")
         listHosts()
         exit() # End script
+
+if update is True:
+        Debug("Checking for Updates")
+        checkForUpdate()
+        exit()
 
 if addAction is True:
         Debug("Adding Host")
@@ -409,3 +464,4 @@ else:
         validateCommand()
         processHost()
         exit
+
