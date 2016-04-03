@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # stooge.py - "one who plays a subordinate or compliant role to a principal"
 # Ron Egli
-Version="0.8.3"
+Version="0.8.4"
 # github.com/smugzombie - stooge.us
 
 # Python Imports
@@ -62,7 +62,9 @@ def createBlankConfig():
 def listHosts():
         print "Current Stooge Hosts"; print ""
         if hostcount > 0:
-                for x in xrange(hostcount): print " ", x, data["hosts"][x]["id"]
+                print columnify("  #",5), "|", columnify("    Host", 10), "|", columnify("   Group", 10)
+                print columnify("----------------------------------------", 30)
+                for x in xrange(hostcount): print columnify(" "+str(x),5), "|", columnify(data["hosts"][x]["id"], 10), "|", columnify(data["hosts"][x]["group"], 10)
                 print ""; print "Total Stooge Hosts: ", hostcount
         else: print "No current Stooge Hosts."
         return
@@ -413,6 +415,21 @@ def checkForUpdate():
         print "Latest Version  : " + newVersion
         print "Update Available: " + str(update)
         exit()
+
+def columnify(string, length):
+        string = str(string)
+        stringlen = len(string)
+
+        if stringlen < length:
+                while stringlen < length:
+                        string += " "
+                        stringlen = len(string)
+        elif stringlen > length:
+                while stringlen > length:
+                        string = string[:-1]
+                        stringlen = len(string)
+        return string
+
 
 # Initialize Script
 Debug("Debug Enabled")
